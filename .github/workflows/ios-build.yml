@@ -1,0 +1,59 @@
+name: 构建 iOS 安装包
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    name: 云端编译未签名 IPA
+    runs-on: macos-15
+    timeout-minutes: 40
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 安装依赖
+        run: npm install --no-audit --no-fund
+
+      - name: 同步 Web 资源到 iOS 工程
+        run: npx cap sync ios
+
+      - name: 编译 App（不签名）
+        run: |
+          set -o pipefail
+          if [ -d ios/App/App.xcworkspace ]; then
+            TARGET="-workspace ios/App/App.xcworkspace"
+          else
+            TARGET="-project ios/App/App.xcodeproj"
+          fi
+          xcodebuild $TARGET \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: 打包成 IPA
+        run: |
+          rm -rf Payload
+          mkdir -p Payload
+          APP_PATH=$(find build/Build/Products/Release-iphoneos -maxdepth 1 -name "*.app" | head -n 1)
+          echo "打包 $APP_PATH"
+          cp -R "$APP_PATH" Payload/
+          zip -r JuanGuangYueYing-unsigned.ipa Payload
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: JuanGuangYueYing-ipa
+          path: JuanGuangYueYing-unsigned.ipa
+          retention-days: 14
