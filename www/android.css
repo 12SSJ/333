@@ -862,7 +862,7 @@ body.gy-music-view .tt-wrap {
     }
 }
 
-/* ---------- 横屏：晴晴音阁窗口底边与频谱底边都落在第 5 首文字的中线 ----------
+/* ---------- 横屏：晴晴音阁窗口底边与频谱底边都落在第 9 首歌的上沿 ----------
    窗口底边由 app.js 的 ttFitMusicWindowHeight() 按实际行高收边；
    这里让歌词区/频谱区铺满播放器剩余高度，频谱底边自然贴到窗口底边。 */
 @media (orientation: landscape) {
@@ -1358,4 +1358,36 @@ body {
 body.gy-ui-idle .win-controls {
   opacity: 0;
   pointer-events: none;
+}
+
+/* ---------- 竖屏：菜单栏高度与横屏一致（40px），下方窗口布局不动 ---------- */
+@media (orientation: portrait) {
+  .topbar {
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 0 30px 0 4px !important;
+    align-items: center !important;
+  }
+
+  .brand {
+    flex: none;
+    padding: 0 !important;
+  }
+
+  .brand-scene {
+    transform: scale(0.5);
+    transform-origin: left center;
+    margin-right: -56px;
+  }
+
+  .nav-item {
+    min-height: 32px !important;
+    padding: 3px 8px !important;
+  }
+
+  .win-controls {
+    top: auto !important;
+    bottom: 0 !important;
+    align-items: flex-end !important;
+  }
 }

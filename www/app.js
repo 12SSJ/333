@@ -3946,7 +3946,7 @@ document.addEventListener('visibilitychange', () => {
 window.addEventListener('pageshow', ttRestartMotion)
 window.addEventListener('focus', ttRestartMotion)
 
-/* 横屏：晴晴音阁窗口底边收在第 5 首歌文字的中线，只完整显示前 4 首；
+/* 横屏：晴晴音阁窗口底边收在第 9 首歌的上沿，只完整显示前 8 首；
    竖屏/竖版布局不动（清掉内联值，交给 CSS）。
    .tt-wrap 是 flex:1 的子项，height 会被拉伸覆盖，故用 margin-bottom 从底部收进去（与竖屏同一套做法） */
 function ttFitMusicWindowHeight() {
@@ -3957,12 +3957,12 @@ function ttFitMusicWindowHeight() {
   const box = wrap.querySelector('.tt-playlist .tt-rows')
   if (!box) return
   const rows = box.querySelectorAll('.tt-row')
-  if (rows.length < 5) return
+  if (rows.length < 9) return
   const rowH = rows[0].getBoundingClientRect().height
   if (!rowH) return
   const padTop = parseFloat(getComputedStyle(box).paddingTop) || 0
   const boxTop = box.getBoundingClientRect().top - wrap.getBoundingClientRect().top
-  const target = boxTop + padTop + rowH * 4.5
+  const target = boxTop + padTop + rowH * 8
   const delta = Math.round(wrap.getBoundingClientRect().height - target)
   if (delta > 0) wrap.style.marginBottom = `${delta}px`
 }
