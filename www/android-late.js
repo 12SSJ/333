@@ -785,3 +785,29 @@ document.addEventListener('click', (event) => {
   })
   observer.observe(playerEl, { attributes: true, attributeFilter: ['class'] })
 })()
+
+/* 关闭按钮闲置 4 秒后自动淡出，轻触屏幕后重新出现 */
+(function () {
+  if (window.__gyCloseAutoHide) return
+  window.__gyCloseAutoHide = true
+
+  let timer = 0
+
+  function show() {
+    document.body.classList.remove('gy-ui-idle')
+    window.clearTimeout(timer)
+    timer = window.setTimeout(function () {
+      document.body.classList.add('gy-ui-idle')
+    }, 4000)
+  }
+
+  ;['touchstart', 'pointerdown', 'keydown', 'wheel'].forEach(function (ev) {
+    window.addEventListener(ev, show, { passive: true })
+  })
+
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) show()
+  })
+
+  show()
+})()

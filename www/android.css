@@ -1256,3 +1256,106 @@ body {
 .poster:has(img) .poster-fallback {
   display: grid;
 }
+
+/* ---------- 横屏顶栏：菜单栏压窄加宽，品牌/搜索/关闭悬浮其上 ---------- */
+@media (orientation: landscape) {
+  /* 菜单栏只保留导航，高度收缩到关闭按钮下沿 */
+  .topbar {
+    position: relative !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    align-items: center !important;
+  }
+
+  /* 3D 品牌（月球+光环+文字）悬浮在菜单栏左上角，不占用菜单栏布局 */
+  .brand {
+    position: absolute !important;
+    left: 6px !important;
+    top: calc(50% + 2px) !important;
+    transform: translateY(-50%) !important;
+    z-index: 30;
+    margin: 0 !important;
+    padding: 0 !important;
+    pointer-events: none;
+  }
+
+  .brand-scene {
+    transform: scale(0.55);
+    transform-origin: left center;
+    margin-right: 0 !important;
+  }
+
+  /* 菜单栏加宽：导航项在整条顶栏内均匀铺开，左侧给悬浮 Logo 让位 */
+  .nav {
+    flex: 1 1 auto !important;
+    justify-content: space-evenly !important;
+    padding: 0 268px 0 72px !important;
+    gap: 4px;
+  }
+
+  .nav-item {
+    min-height: 32px !important;
+    padding: 3px 10px !important;
+    flex: 0 0 auto;
+  }
+
+  /* 搜索框与历史按钮悬浮在关闭按钮左侧 */
+  .topbar .gy-top-drawer {
+    display: contents !important;
+  }
+
+  .gy-top-toggle {
+    display: none !important;
+  }
+
+  .topbar .gy-top-drawer .search {
+    position: absolute !important;
+    right: 34px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    flex: 0 0 150px;
+    width: 150px !important;
+    min-width: 0;
+    height: 28px !important;
+    padding: 0 10px !important;
+    z-index: 26;
+  }
+
+  .topbar .gy-top-drawer .topbar-actions {
+    position: absolute !important;
+    right: 192px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    height: 28px !important;
+    padding: 0 !important;
+    z-index: 26;
+  }
+
+  .topbar-action {
+    height: 28px;
+  }
+
+  /* 关闭按钮悬浮，下边与菜单栏底边对齐 */
+  .win-controls {
+    position: absolute !important;
+    top: auto !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    height: auto !important;
+    padding: 0 8px 0 0 !important;
+    align-items: flex-end !important;
+    z-index: 40;
+  }
+}
+
+/* 关闭按钮闲置 4 秒后自动淡出，轻触屏幕重新出现 */
+.win-controls {
+  transition: opacity 0.25s ease;
+}
+
+body.gy-ui-idle .win-controls {
+  opacity: 0;
+  pointer-events: none;
+}
