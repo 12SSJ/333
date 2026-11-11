@@ -3999,7 +3999,24 @@ function ttFitMusicWindowHeight() {
   if (delta > 0) wrap.style.marginBottom = `${delta}px`
 }
 
-window.addEventListener('resize', ttFitMusicWindowHeight)
+/* 旋屏时 WebView 的 resize 往往早于新布局生效（那一刻 matchMedia 还停留在竖屏），
+   只调一次会算出竖屏结果并把横屏收边清掉，表现为「转横屏后显示不全，点一下音乐厅才正常」。
+   这里改成多拍重算：立即 + 下一帧 + 若干延迟，等尺寸真正稳定后再收一次边。 */
+let ttFitTimers = []
+
+function ttFitMusicWindowHeightLater() {
+  ttFitTimers.forEach((id) => clearTimeout(id))
+  ttFitTimers = []
+  ttFitMusicWindowHeight()
+  requestAnimationFrame(ttFitMusicWindowHeight)
+  ;[120, 320, 700, 1200].forEach((delay) => {
+    ttFitTimers.push(setTimeout(ttFitMusicWindowHeight, delay))
+  })
+}
+
+window.addEventListener('resize', ttFitMusicWindowHeightLater)
+window.addEventListener('orientationchange', ttFitMusicWindowHeightLater)
+if (window.visualViewport) window.visualViewport.addEventListener('resize', ttFitMusicWindowHeightLater)
 
 
 function ttTrackFrom(item, sourceLabel) {
