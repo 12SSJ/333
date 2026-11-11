@@ -1583,6 +1583,38 @@ function coverImgHtml(src) {
   return `<img src="${escapeHtml(url)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"${loaded} />`
 }
 
+/* 整页重绘后，把已加载过/已缓存好的封面直接点亮，避免新 img 节点再淡入一次造成闪烁 */
+function markLoadedCovers() {
+  contentEl.querySelectorAll('.poster img, .music-cover img').forEach((img) => {
+    if (img.classList.contains('is-loaded')) return
+    const raw = img.getAttribute('src') || ''
+    if (raw && gyLoadedCovers.has(raw)) {
+      img.classList.add('is-loaded')
+      return
+    }
+    if (img.complete && img.naturalWidth > 0) {
+      img.classList.add('is-loaded')
+      if (raw) gyLoadedCovers.add(raw)
+    }
+  })
+}
+
+/* 本地截帧封面抽好后只补对应卡片，不再整页重绘（整页重绘会让所有封面重新解码而闪） */
+function applyThumbToCards(url, dataURL) {
+  contentEl.querySelectorAll('.card[data-thumb]').forEach((card) => {
+    let thumb = card.dataset.thumb || ''
+    try {
+      thumb = decodeURIComponent(thumb)
+    } catch {
+      /* 保留原始值 */
+    }
+    if (thumb !== url) return
+    const poster = card.querySelector('.poster')
+    if (!poster || poster.querySelector('img')) return
+    poster.insertAdjacentHTML('beforeend', coverImgHtml(dataURL))
+  })
+}
+
 function gradientFor(text) {
   let hue = 0
   const value = String(text || '')
@@ -5191,7 +5223,7 @@ function pumpThumbs() {
         if (dataURL) {
           thumbCache.data[url] = { d: dataURL, t: Date.now() }
           saveThumbCache()
-          render()
+          applyThumbToCards(url, dataURL)
         } else {
           thumbFailed.add(url)
         }
@@ -5336,6 +5368,7 @@ function render() {
   else if (state.view === 'settings') html = renderSettings()
 
   contentEl.innerHTML = html
+  markLoadedCovers()
   const lyricsFull = state.view === 'music' && !state.query && categorySlot('music').musicSource === 'tt'
   contentEl.classList.toggle('lyrics-full', lyricsFull)
   contentEl.classList.toggle('is-settings', state.view === 'settings' && !state.query)
@@ -7423,6 +7456,8 @@ function switchView(nextView) {
     (event) => {
       const el = event.target
       if (!el || el.tagName !== 'IMG') return
+      const raw = el.getAttribute('src') || ''
+      if (raw) gyLoadedCovers.add(raw)
       gyLoadedCovers.add(el.currentSrc || el.src)
       el.classList.add('is-loaded')
     },

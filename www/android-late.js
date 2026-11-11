@@ -787,7 +787,7 @@ document.addEventListener('click', (event) => {
 })()
 
 /* 关闭按钮闲置 4 秒后自动淡出，轻触屏幕后重新出现 */
-(function () {
+;(function () {
   if (window.__gyCloseAutoHide) return
   window.__gyCloseAutoHide = true
 
